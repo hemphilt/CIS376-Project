@@ -45,19 +45,19 @@ SDL_Texture* Player::loadTexture(SDL_Renderer* renderer, const std::string& path
 }
 
 void Player::updatePosition(const Uint8* currentKeyStates) {
-    // Update player position based on continuously pressed keys
-    if (currentKeyStates[SDL_SCANCODE_W]) {
-        position.y -= 2; // Move up
-    }
-    if (currentKeyStates[SDL_SCANCODE_S]) {
-        position.y += 2; // Move down
-    }
-    if (currentKeyStates[SDL_SCANCODE_A]) {
-        position.x -= 2; // Move left
-    }
-    if (currentKeyStates[SDL_SCANCODE_D]) {
-        position.x += 2; // Move right
-    }
+	// Update player position based on continuously pressed keys
+	if (currentKeyStates[SDL_SCANCODE_W]) {
+		position.y -= 2; // Move up
+	}
+	if (currentKeyStates[SDL_SCANCODE_S]) {
+		position.y += 2; // Move down
+	}
+	if (currentKeyStates[SDL_SCANCODE_A]) {
+		position.x -= 2; // Move left
+	}
+	if (currentKeyStates[SDL_SCANCODE_D]) {
+		position.x += 2; // Move right
+	}
 }
 
 // Getters
@@ -95,22 +95,22 @@ Projectile& Player::getProjectile() {
 }
 
 void Player::shootProjectile(SDL_Renderer* renderer) {
-    // Set the initial position of the projectile to be at the player's position
-    projectile = Projectile(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/arrow.png", position.x, position.y, 10, 10);
+	// Set the initial position of the projectile to be at the player's position
+	projectile = Projectile(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/arrow.png", position.x, position.y, 10, 10);
 
-    // Set the velocity of the projectile based on the mouse direction
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
+	// Set the velocity of the projectile based on the mouse direction
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
 
-    int deltaX = mouseX - position.x;
-    int deltaY = mouseY - position.y;
+	int deltaX = mouseX - position.x;
+	int deltaY = mouseY - position.y;
 
-    // Normalize the direction
-    float distance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
-    if (distance > 0) {
-        projectile.setVelocityX(deltaX / distance * PROJECTILE_SPEED);
-        projectile.setVelocityY(deltaY / distance * PROJECTILE_SPEED);
-    }
+	// Normalize the direction
+	float distance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
+	if (distance > 0) {
+		projectile.setVelocityX(deltaX / distance * PROJECTILE_SPEED);
+		projectile.setVelocityY(deltaY / distance * PROJECTILE_SPEED);
+	}
 }
 
 

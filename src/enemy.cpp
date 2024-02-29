@@ -60,25 +60,25 @@ void Enemy::setEnemyClass(const std::string& newEnemyClass) {
 }
 
 void Enemy::updatePosition(const SDL_Rect& playerPosition) {
-    // Calculate the direction towards the player
-    int deltaX = playerPosition.x - position.x;
-    int deltaY = playerPosition.y - position.y;
+	// Calculate the direction towards the player
+	int deltaX = playerPosition.x - position.x;
+	int deltaY = playerPosition.y - position.y;
 
-    // Calculate the distance to the player
-    float distance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
+	// Calculate the distance to the player
+	float distance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    // Check if the player is within 100 pixels
-    if (distance <= 300) {
-        // Normalize the direction
-        if (distance > 0) {
-            deltaX = static_cast<int>(deltaX / distance * ENEMY_SPEED);
-            deltaY = static_cast<int>(deltaY / distance * ENEMY_SPEED);
-        }
+	// Check if the player is within 100 pixels
+	if (distance <= 300) {
+		// Normalize the direction
+		if (distance > 0) {
+			deltaX = static_cast<int>(deltaX / distance * ENEMY_SPEED);
+			deltaY = static_cast<int>(deltaY / distance * ENEMY_SPEED);
+		}
 
-        // Update the enemy position based on the calculated direction
-        position.x += deltaX;
-        position.y += deltaY;
-    }
+		// Update the enemy position based on the calculated direction
+		position.x += deltaX;
+		position.y += deltaY;
+	}
 }
 
 const SDL_Rect Enemy::getPosition() const {

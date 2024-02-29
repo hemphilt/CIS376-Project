@@ -9,20 +9,20 @@
 
 class Projectile {
 public:
-    Projectile(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
-    ~Projectile();
+	Projectile(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
+	~Projectile();
 
-    void update();
-    void render(SDL_Renderer* renderer, int offsetX, int offsetY);
+	void update();
+	void render(SDL_Renderer* renderer, int offsetX, int offsetY);
 
-    // Getters
-    SDL_Rect getPosition() const;
+	// Getters
+	SDL_Rect getPosition() const;
 
 private:
-    SDL_Texture* texture;
-    SDL_Rect position;
-    SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
-    const float PROJECTILE_SPEED = 5.0f;
+	SDL_Texture* texture;
+	SDL_Rect position;
+	SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
+	const float PROJECTILE_SPEED = 5.0f;
 };
 
 #endif // PROJECTILE_H
