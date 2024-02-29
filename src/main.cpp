@@ -1,98 +1,142 @@
-// SDL2 Hello, World!
-// This should display a white screen for 2 seconds
-// compile with: g++ main.cpp -o main -lSDL2
-// run with: ./main
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
-
-//#include </home/hemphito/CIS376/LEAGUE_Project/include/SDL2/SDL_image.h>
-
-#include "spaceship.h"
+#include "player.h"
 #include "enemy.h"
-#include "asteroid.h"
-#include "planet.h"
+#include "projectile.h"
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 1000
+#define SCREEN_HEIGHT 800
+
+
 
 int main(int argc, char* args[]) {
-  	SDL_Window* window = NULL;
-  	SDL_Renderer* renderer = NULL;
-  	SDL_Surface* screenSurface = NULL;
-  	SDL_Surface* backgroundImage = NULL;
+    SDL_Window* window = NULL;
+    SDL_Renderer* renderer = NULL;
+    SDL_Surface* screenSurface = NULL;
+    SDL_Surface* backgroundImage = NULL;
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-   		fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
-    		return 1;
-  	}
-  
-  	window = SDL_CreateWindow(
-    		"main",
-	    	SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-	   	SCREEN_WIDTH, SCREEN_HEIGHT,
-	    	SDL_WINDOW_SHOWN
-	);
-			    
-  	if (window == NULL) {
-    		fprintf(stderr, "could not create window: %s\n", SDL_GetError());
-    		return 1;
-  	}
- 
- 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    	if (renderer == NULL) {
-        	fprintf(stderr, "could not create renderer: %s\n", SDL_GetError());
-        	return 1;
-    	}
- 
- 
-  	screenSurface = SDL_GetWindowSurface(window);
- 	//SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0xFF, 0xFF, 0xFF));
- 
-  	// Load background image
-  	backgroundImage = IMG_Load("/home/hemphito/CIS376/LEAGUE_Project/Assets/Backgrounds/Starfields/Starfield6.png");
-  	if (backgroundImage == NULL) {
-	  	fprintf(stderr, "could not load image: %s\n", SDL_GetError());
-	  	return 1;
-  	}
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
+        return 1;
+    }
 
-  	// Blit the image onto the window surface
-  	SDL_BlitSurface(backgroundImage, NULL, screenSurface, NULL);
-  	
-  	
-  	// Create a Spaceship
-  	Spaceship spaceship(renderer, "/home/hemphito/CIS376/LEAGUE_Project/assets/Player/Design/Ship.png", 100, 100, 50, 50);
-  	spaceship.render(renderer);
+    window = SDL_CreateWindow(
+        "main",
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        SCREEN_WIDTH, SCREEN_HEIGHT,
+        SDL_WINDOW_SHOWN
+    );
 
+    if (window == NULL) {
+        fprintf(stderr, "could not create window: %s\n", SDL_GetError());
+        return 1;
+    }
 
-	// Create an Enemy on the other side of the screen
- 	Enemy enemy(renderer, "/home/hemphito/CIS376/LEAGUE_Project/assets/Enemies/Designs/Fighter.png", SCREEN_WIDTH - 100, 100, 50, 50);
-  	enemy.render(renderer);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (renderer == NULL) {
+        fprintf(stderr, "could not create renderer: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    screenSurface = SDL_GetWindowSurface(window);
+
+    // Load background image
+    backgroundImage = IMG_Load("/home/hemphito/CIS376/CIS376-Project/assets/dungeon.png");
+    if (backgroundImage == NULL) {
+        fprintf(stderr, "could not load image: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    // Create texture from the surface
+    SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundImage);
+    if (backgroundTexture == NULL) {
+        fprintf(stderr, "could not create background texture: %s\n", SDL_GetError());
+        SDL_FreeSurface(backgroundImage);
+        return 1;
+    }
+
+    // Free the surface as it is no longer needed
+    SDL_FreeSurface(backgroundImage);
+    backgroundImage = NULL;
+
+    // Create a Player
+    Player player(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 50);
+
+    // Create an Enemy on the other side of the screen
+    Enemy enemy(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/skeleton.png", SCREEN_WIDTH - 100, 100, 25, 50);
+
+    SDL_UpdateWindowSurface(window);
+
+    // Main game loop
+bool quit = false;
+Uint32 lastFrameTime = SDL_GetTicks();
+
+while (!quit) {
+   SDL_Event event;
+    while (SDL_PollEvent(&event) != 0) {
+        if (event.type == SDL_QUIT) {
+            quit = true;
+        } else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
+            // Right-click to shoot
+            player.shootProjectile(renderer);
+        }
+    }
+
+    // Get the state of all keys
+    const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+
+    // Update player position based on continuously pressed keys
+    player.updatePosition(currentKeyStates);
+
+    // Update enemy position based on player's position
+    enemy.updatePosition(player.getPosition());
+    
     
 
-	// Create a Projectile coming from enemy
-	Projectile projectile(renderer, "/path/to/projectile.png", enemy.getPosition().x - 75, enemy.getPosition().y, 20, 20);
-	projectile.render(renderer);
-	
-	
-	// Create two Asteroids
-	Asteroid asteroid1(renderer, "/home/hemphito/CIS376/LEAGUE_Project/assets/Asteroids/Asteroid.png", 200, 200, 25, 30);
-	asteroid1.render(renderer);
-	
-	Asteroid asteroid2(renderer, "/home/hemphito/CIS376/LEAGUE_Project/assets/Asteroids/Asteroid.png", 400, 300, 42, 42);
-	asteroid2.render(renderer);
+    
+    
 
+    // Calculate the offset to center the screen on the player
+    int offsetX = SCREEN_WIDTH / 2 - player.getPosition().x;
+    int offsetY = SCREEN_HEIGHT / 2 - player.getPosition().y;
 
-	// Create a Planet in the background
-	Planet planet(renderer, "/home/hemphito/CIS376/LEAGUE_Project/assets/Planets/Gas - Giant/Giant1.png", 220, 50, 100, 100);
-	planet.render(renderer);
+    // Clear the renderer
+    SDL_RenderClear(renderer);
 
+    // Render background texture with camera offset
+    SDL_Rect backgroundRect = { offsetX, offsetY, SCREEN_WIDTH, SCREEN_HEIGHT };
+    SDL_RenderCopy(renderer, backgroundTexture, NULL, &backgroundRect);
 
- 
-	SDL_UpdateWindowSurface(window);
-	SDL_Delay(10000);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-	return 0;
+    // Render game objects with the calculated offset
+    player.render(renderer, offsetX, offsetY);
+    enemy.render(renderer, offsetX, offsetY);
+
+	// Update and render the projectile
+    player.getProjectile().update();
+    player.getProjectile().render(renderer, offsetX, offsetY);
+
+    // Present the renderer
+    SDL_RenderPresent(renderer);
+
+    // Check player's health
+    if (player.getHealth() <= 0) {
+        quit = true;  // Exit the game if the player's health reaches 0
+    }
+
+    // Cap the frame rate to approximately 60 frames per second
+    Uint32 currentTime = SDL_GetTicks();
+    Uint32 deltaTime = currentTime - lastFrameTime;
+
+    if (deltaTime < 16) {
+        SDL_Delay(16 - deltaTime);  // Cap the frame rate
+    }
+
+    lastFrameTime = currentTime;
 }
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 0;
+}
+

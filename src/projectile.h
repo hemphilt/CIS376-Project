@@ -8,16 +8,21 @@
 //#include "/home/hemphito/CIS376/LEAGUE_Project/include/SDL2/SDL_image.h"
 
 class Projectile {
+public:
+    Projectile(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
+    ~Projectile();
 
-	public:
-	    	Projectile(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
-	    	~Projectile();
-	    	void render(SDL_Renderer* renderer);
+    void update();
+    void render(SDL_Renderer* renderer, int offsetX, int offsetY);
 
-	private:
-		SDL_Texture* texture;
-		SDL_Rect position;
-	    	SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
+    // Getters
+    SDL_Rect getPosition() const;
+
+private:
+    SDL_Texture* texture;
+    SDL_Rect position;
+    SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
+    const float PROJECTILE_SPEED = 5.0f;
 };
 
 #endif // PROJECTILE_H
