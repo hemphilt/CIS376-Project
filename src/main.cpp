@@ -68,6 +68,7 @@ int main(int argc, char* args[]) {
 
 	SDL_UpdateWindowSurface(window);
 
+
 	// Main game loop
 	bool quit = false;
 	Uint32 lastFrameTime = SDL_GetTicks();
@@ -77,9 +78,6 @@ int main(int argc, char* args[]) {
 		while (SDL_PollEvent(&event) != 0) {
 			if (event.type == SDL_QUIT) {
 				quit = true;
-			} else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
-				// Right-click to shoot
-				player.shootProjectile(renderer);
 			}
 		}
 
@@ -92,7 +90,8 @@ int main(int argc, char* args[]) {
 		// Update enemy position based on player's position
 		enemy.updatePosition(player.getPosition());
 
-    
+		// Check right-click to shoot
+		player.shootProjectile(renderer);
 
 		// Calculate the offset to center the screen on the player
 		int offsetX = SCREEN_WIDTH / 2 - player.getPosition().x;
@@ -101,6 +100,9 @@ int main(int argc, char* args[]) {
 		// Clear the renderer
 		SDL_RenderClear(renderer);
 
+		// Set blending mode
+		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
 		// Render background texture with camera offset
 		SDL_Rect backgroundRect = { offsetX, offsetY, SCREEN_WIDTH, SCREEN_HEIGHT };
 		SDL_RenderCopy(renderer, backgroundTexture, NULL, &backgroundRect);
@@ -108,10 +110,25 @@ int main(int argc, char* args[]) {
 		// Render game objects with the calculated offset
 		player.render(renderer, offsetX, offsetY);
 		enemy.render(renderer, offsetX, offsetY);
+	
+	
+		// Update and render all projectiles
+		std::vector<Projectile> aliveProjectiles;
 
-		// Update and render the projectile
-		player.getProjectile().update();
-		player.getProjectile().render(renderer, offsetX, offsetY);
+		for (auto& projectile : player.getProjectiles()) {
+			projectile.update();
+			projectile.render(renderer, offsetX, offsetY);
+
+			// Only add alive projectiles to the new vector
+			if (projectile.isAlive()) {
+				aliveProjectiles.push_back(projectile);
+			}
+		}
+
+		// Assign the alive projectiles back to the player's projectiles
+		printf("Alive Projectiles: %zu\n", aliveProjectiles.size()); //Debug Print
+		player.setProjectiles(aliveProjectiles);
+
 
 		// Present the renderer
 		SDL_RenderPresent(renderer);

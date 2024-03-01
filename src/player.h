@@ -4,7 +4,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
+#include <vector>
 #include "projectile.h"
+#include <algorithm>
 
 class Player {
 
@@ -17,7 +19,10 @@ public:
     	void updatePosition(const Uint8* currentKeyStates);
     	
     	void shootProjectile(SDL_Renderer* renderer);
-    	Projectile& getProjectile();
+    	bool canShoot() const;
+    	std::vector<Projectile>& getProjectiles();
+    	void setProjectiles(const std::vector<Projectile>& newProjectiles);
+    	void addProjectile(Projectile& projectile);
 
     	// Getters
     	int getHealth() const;
@@ -38,7 +43,10 @@ private:
 	int mana;
 	std::string playerClass;
 	
-	Projectile projectile;
+	std::vector<Projectile> projectiles;
+	Uint32 lastShotTime;
+    	Uint32 shotCooldown;
+	
 };
 
 #endif // PLAYER_H

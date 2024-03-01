@@ -4,8 +4,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <string>
+#include <vector>
 
-//#include "/home/hemphito/CIS376/LEAGUE_Project/include/SDL2/SDL_image.h"
+
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 800;
+
 
 class Projectile {
 public:
@@ -18,10 +22,12 @@ public:
 	// Getters
 	SDL_Rect getPosition() const;
 	
-	const float PROJECTILE_SPEED = 5.0f;
+	float PROJECTILE_SPEED = 5.0f;
 	
 	void setVelocityX(float vx);
 	void setVelocityY(float vy);
+	
+	bool isAlive() const;
 
 private:
 	SDL_Texture* texture;

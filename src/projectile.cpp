@@ -14,7 +14,9 @@ Projectile::~Projectile() {
 
 void Projectile::update() {
 	// Move the projectile in its current direction
-	position.x += static_cast<int>(PROJECTILE_SPEED);
+	position.x += static_cast<int>(velocityX);
+    	position.y += static_cast<int>(velocityY);
+    	//printf("Updating projectile position to (%d, %d)\n", position.x, position.y); //Debug Print
 }
 
 void Projectile::render(SDL_Renderer* renderer, int offsetX, int offsetY) {
@@ -22,6 +24,7 @@ void Projectile::render(SDL_Renderer* renderer, int offsetX, int offsetY) {
 	renderPosition.x += offsetX;
 	renderPosition.y += offsetY;
 	SDL_RenderCopy(renderer, texture, nullptr, &renderPosition);
+	printf("Rendering projectile at (%d, %d)\n", renderPosition.x, renderPosition.y); //Debug Print
 }
 
 SDL_Rect Projectile::getPosition() const {
@@ -52,3 +55,7 @@ void Projectile::setVelocityY(float vy) {
     velocityY = vy;
 }
 
+bool Projectile::isAlive() const {
+    // Check if the projectile is within the screen boundaries
+    return position.x >= 0 && position.y >= 0 && position.x < SCREEN_WIDTH && position.y < SCREEN_HEIGHT;
+}

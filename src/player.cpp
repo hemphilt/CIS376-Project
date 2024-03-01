@@ -6,9 +6,13 @@
 
 
 
+
 Player::Player(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height)
-	: projectile(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/arrow.png", x, y, 10, 10) {
+	: projectiles(),
+	lastShotTime(0),
+      	shotCooldown(1000){
 	
+
 	texture = loadTexture(renderer, imagePath);
 	position.x = x;
 	position.y = y;
@@ -93,24 +97,47 @@ const SDL_Rect Player::getPosition() const {
 	return position;
 }
 
-Projectile& Player::getProjectile() {
-    return projectile;
+std::vector<Projectile>& Player::getProjectiles() {
+        return projectiles;
+}
+
+void Player::setProjectiles(const std::vector<Projectile>& newProjectiles) {
+	projectiles = newProjectiles;
+}
+
+void Player::addProjectile( Projectile& projectile) {
+        projectiles.push_back(projectile);
 }
 
 void Player::shootProjectile(SDL_Renderer* renderer) {
-	// Set the velocity of the projectile based on the mouse direction
-	int mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
+    int mouseX, mouseY;
+    Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
-	int deltaX = mouseX - position.x;
-	int deltaY = mouseY - position.y;
+    // Check if right mouse button is pressed and if enough time has passed since the last shot
+    if (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT) && canShoot()) {
+        Projectile newProjectile(renderer, "./assets/arrow.png", position.x, position.y, 20, 20);
 
-	// Normalize the direction
-	float distance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
-	if (distance > 0) {
-		projectile.setVelocityX(deltaX / distance * projectile.PROJECTILE_SPEED);
-		projectile.setVelocityY(deltaY / distance * projectile.PROJECTILE_SPEED);
-	}
+        // Set the velocity of the projectile based on the mouse direction
+        int deltaX = mouseX - position.x;
+        int deltaY = mouseY - position.y;
+
+        // Normalize the direction
+        float distance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
+        if (distance > 0) {
+            newProjectile.setVelocityX(deltaX / distance * newProjectile.PROJECTILE_SPEED);
+            newProjectile.setVelocityY(deltaY / distance * newProjectile.PROJECTILE_SPEED);
+        }
+
+        // Add the new projectile to the vector
+        addProjectile(newProjectile);
+        //printf("Creating a new projectile at (%d, %d)\n", position.x, position.y);  // Debug print
+
+        // Update the last shot time
+        lastShotTime = SDL_GetTicks();
+    }
 }
 
-
+bool Player::canShoot() const {
+    // Check if enough time has passed since the last shot
+    return SDL_GetTicks() - lastShotTime >= shotCooldown;
+}
