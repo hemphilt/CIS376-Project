@@ -42,3 +42,13 @@ SDL_Texture* Projectile::loadTexture(SDL_Renderer* renderer, const std::string& 
 
 	return texture;
 }
+
+
+void Projectile::setVelocityX(float vx) {
+    velocityX = vx;
+}
+
+void Projectile::setVelocityY(float vy) {
+    velocityY = vy;
+}
+

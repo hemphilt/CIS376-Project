@@ -42,7 +42,7 @@ int main(int argc, char* args[]) {
 	screenSurface = SDL_GetWindowSurface(window);
 
 	// Load background image
-	backgroundImage = IMG_Load("/home/hemphito/CIS376/CIS376-Project/assets/dungeon.png");
+	backgroundImage = IMG_Load("./assets/dungeon.png");
 	if (backgroundImage == NULL) {
 		fprintf(stderr, "could not load image: %s\n", SDL_GetError());
 		return 1;
@@ -61,10 +61,10 @@ int main(int argc, char* args[]) {
 	backgroundImage = NULL;
 
 	// Create a Player
-	Player player(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 50);
+	Player player(renderer, "./assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 50);
 
 	// Create an Enemy on the other side of the screen
-	Enemy enemy(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/skeleton.png", SCREEN_WIDTH - 100, 100, 25, 50);
+	Enemy enemy(renderer, "./assets/skeleton.png", SCREEN_WIDTH - 100, 100, 25, 50);
 
 	SDL_UpdateWindowSurface(window);
 

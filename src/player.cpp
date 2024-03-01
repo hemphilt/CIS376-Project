@@ -4,13 +4,16 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-Player::Player(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height) {
+
+
+Player::Player(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height)
+	: projectile(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/arrow.png", x, y, 10, 10) {
+	
 	texture = loadTexture(renderer, imagePath);
 	position.x = x;
 	position.y = y;
 	position.w = width;
 	position.h = height;
-
 
 	health = 100;
 	mana = 50;
@@ -95,9 +98,6 @@ Projectile& Player::getProjectile() {
 }
 
 void Player::shootProjectile(SDL_Renderer* renderer) {
-	// Set the initial position of the projectile to be at the player's position
-	projectile = Projectile(renderer, "/home/hemphito/CIS376/CIS376-Project/assets/arrow.png", position.x, position.y, 10, 10);
-
 	// Set the velocity of the projectile based on the mouse direction
 	int mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
@@ -108,8 +108,8 @@ void Player::shootProjectile(SDL_Renderer* renderer) {
 	// Normalize the direction
 	float distance = std::sqrt(deltaX * deltaX + deltaY * deltaY);
 	if (distance > 0) {
-		projectile.setVelocityX(deltaX / distance * PROJECTILE_SPEED);
-		projectile.setVelocityY(deltaY / distance * PROJECTILE_SPEED);
+		projectile.setVelocityX(deltaX / distance * projectile.PROJECTILE_SPEED);
+		projectile.setVelocityY(deltaY / distance * projectile.PROJECTILE_SPEED);
 	}
 }
 

@@ -17,12 +17,19 @@ public:
 
 	// Getters
 	SDL_Rect getPosition() const;
+	
+	const float PROJECTILE_SPEED = 5.0f;
+	
+	void setVelocityX(float vx);
+	void setVelocityY(float vy);
 
 private:
 	SDL_Texture* texture;
 	SDL_Rect position;
 	SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
-	const float PROJECTILE_SPEED = 5.0f;
+	
+	float velocityX;
+	float velocityY;
 };
 
 #endif // PROJECTILE_H

@@ -17,7 +17,7 @@ public:
     	void updatePosition(const Uint8* currentKeyStates);
     	
     	void shootProjectile(SDL_Renderer* renderer);
-    	const Projectile& getProjectile();
+    	Projectile& getProjectile();
 
     	// Getters
     	int getHealth() const;
