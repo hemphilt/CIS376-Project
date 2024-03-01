@@ -3,15 +3,18 @@
 
 #include <vector>
 #include <string>
+#include <map>
 #include <SDL2/SDL.h>
 #include <box2d/box2d.h>
+#include "projectile.h"
+#include "entityuserdata.h"
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
 #define PLAYER_SPEED 5.0f
 #define PPM 32.0f
 
-class Projectile;
+std::map<b2Body*, EntityUserData*> playerUserDataMap;
 
 class Player {
 public:
@@ -25,6 +28,8 @@ public:
     std::vector<Projectile>& getProjectiles();
     void setProjectiles(const std::vector<Projectile>& newProjectiles);
     int getHealth() const;
+    
+    void handleBeginContact(EntityUserData* otherUserData);
 
 private:
     SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);

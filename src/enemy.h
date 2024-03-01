@@ -5,12 +5,15 @@
 #include <SDL2/SDL_image.h>
 #include <cmath>
 #include <string>
+#include <map> 
 #include <box2d/box2d.h>
+#include "entityuserdata.h"
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
 #define ENEMY_SPEED 90.0f
 #define PPM 32.0f
+
 
 class Enemy {
 public:
@@ -26,6 +29,8 @@ public:
     std::string getEnemyClass() const;
     void setHealth(int newHealth);
     void setEnemyClass(const std::string& newEnemyClass);
+    
+    void handleBeginContact(EntityUserData* otherUserData);
 
 private:
     SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);

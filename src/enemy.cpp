@@ -1,5 +1,7 @@
 #include "enemy.h"
 
+std::map<b2Body*, EntityUserData*> bodyUserDataMap;
+
 Enemy::Enemy(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, float x, float y, float width, float height)
     : texture(nullptr),
       world(world),
@@ -30,12 +32,20 @@ Enemy::Enemy(b2World* world, SDL_Renderer* renderer, const std::string& imagePat
     fixtureDef.friction = 0.3f;
 
     body->CreateFixture(&fixtureDef);
+    
+    EntityUserData* enemyUserData = new EntityUserData{EntityUserData::ENEMY};
+    // Store the user data in the map
+    bodyUserDataMap[body] = enemyUserData;
 }
 
 Enemy::~Enemy() {
     SDL_DestroyTexture(texture);
     world->DestroyBody(body);
+
+    // Remove the user data from the map when destroying the body
+    bodyUserDataMap.erase(body);
 }
+
 
 SDL_Texture* Enemy::loadTexture(SDL_Renderer* renderer, const std::string& path) {
     SDL_Surface* loadedSurface = IMG_Load(path.c_str());
@@ -129,5 +139,12 @@ void Enemy::setPosition(float x, float y) {
     body->SetTransform(b2Vec2(x / PPM, y / PPM), body->GetAngle());
 }
 
+void Enemy::handleBeginContact(EntityUserData* otherUserData) {
+    if (otherUserData && otherUserData->type == EntityUserData::ENEMY) {
+    
+        health -= 10;
+        
+    }
+}
 
 

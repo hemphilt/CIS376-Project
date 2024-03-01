@@ -1,5 +1,9 @@
 #include "player.h"
-#include "projectile.h"
+
+
+// Define a map to store user data associated with player bodies
+std::map<b2Body*, EntityUserData*> playerUserDataMap;
+
 
 Player::Player(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height)
     : world(world),
@@ -32,6 +36,14 @@ Player::Player(b2World* world, SDL_Renderer* renderer, const std::string& imageP
     health = 100;
     mana = 50;
     playerClass = "Warrior";
+    
+      body->CreateFixture(&fixtureDef);
+    
+     // Set user data for the player body
+    EntityUserData* playerUserData = new EntityUserData{EntityUserData::PLAYER};
+
+    // Add the player to the map
+    playerUserDataMap[body] = playerUserData;
 }
 
 Player::~Player() {
@@ -131,5 +143,13 @@ void Player::setProjectiles(const std::vector<Projectile>& newProjectiles) {
 
 int Player::getHealth() const {
     return health;
+}
+
+
+void Player::handleBeginContact(EntityUserData* otherUserData) {
+    if (otherUserData && otherUserData->type == EntityUserData::ENEMY) {
+        health -= 10;
+        printf("Player Health: %d\n", health); //Debug Print
+    }
 }
 
