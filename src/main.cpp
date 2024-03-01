@@ -1,157 +1,127 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <stdio.h>
+#include <iostream>
+#include <box2d/box2d.h>
 #include "player.h"
 #include "enemy.h"
 #include "projectile.h"
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
-
-
+#define PPM 32.0f
 
 int main(int argc, char* args[]) {
-	SDL_Window* window = NULL;
-	SDL_Renderer* renderer = NULL;
-	SDL_Surface* screenSurface = NULL;
-	SDL_Surface* backgroundImage = NULL;
+    SDL_Window* window = nullptr;
+    SDL_Renderer* renderer = nullptr;
+    SDL_Surface* backgroundImage = nullptr;
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
-		return 1;
-	}
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cerr << "Could not initialize SDL2: " << SDL_GetError() << std::endl;
+        return 1;
+    }
 
-	window = SDL_CreateWindow(
-		"main",
-		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-		SCREEN_WIDTH, SCREEN_HEIGHT,
-		SDL_WINDOW_SHOWN
-	);
+    window = SDL_CreateWindow(
+        "main",
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        SCREEN_WIDTH, SCREEN_HEIGHT,
+        SDL_WINDOW_SHOWN
+    );
 
-	if (window == NULL) {
-		fprintf(stderr, "could not create window: %s\n", SDL_GetError());
-		return 1;
-	}
+    if (window == nullptr) {
+        std::cerr << "Could not create window: " << SDL_GetError() << std::endl;
+        return 1;
+    }
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (renderer == NULL) {
-		fprintf(stderr, "could not create renderer: %s\n", SDL_GetError());
-		return 1;
-	}
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (renderer == nullptr) {
+        std::cerr << "Could not create renderer: " << SDL_GetError() << std::endl;
+        return 1;
+    }
 
-	screenSurface = SDL_GetWindowSurface(window);
+    // Load background image
+    backgroundImage = IMG_Load("./assets/dungeon.png");
+    if (backgroundImage == nullptr) {
+        std::cerr << "Could not load image: " << SDL_GetError() << std::endl;
+        return 1;
+    }
 
-	// Load background image
-	backgroundImage = IMG_Load("./assets/dungeon.png");
-	if (backgroundImage == NULL) {
-		fprintf(stderr, "could not load image: %s\n", SDL_GetError());
-		return 1;
-	}
+    // Create texture from the surface
+    SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundImage);
+    if (backgroundTexture == nullptr) {
+        std::cerr << "Could not create background texture: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(backgroundImage);
+        return 1;
+    }
 
-	// Create texture from the surface
-	SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, backgroundImage);
-	if (backgroundTexture == NULL) {
-		fprintf(stderr, "could not create background texture: %s\n", SDL_GetError());
-		SDL_FreeSurface(backgroundImage);
-		return 1;
-	}
+    // Free the surface as it is no longer needed
+    SDL_FreeSurface(backgroundImage);
+    backgroundImage = nullptr;
 
-	// Free the surface as it is no longer needed
-	SDL_FreeSurface(backgroundImage);
-	backgroundImage = NULL;
+    // Create a Box2D world
+    b2Vec2 gravity(0.0f, 9.8f);
+    b2World world(gravity);
 
-	// Create a Player
-	Player player(renderer, "./assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 50);
+    // Create a Player
+    Player player(&world, renderer, "./assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 50);
 
-	// Create an Enemy on the other side of the screen
-	Enemy enemy(renderer, "./assets/skeleton.png", SCREEN_WIDTH - 100, 100, 25, 50);
+    // Create an Enemy on the other side of the screen
+    Enemy enemy(&world, renderer, "./assets/skeleton.png", SCREEN_WIDTH - 100, 100, 25, 50);
 
-	SDL_UpdateWindowSurface(window);
+    // Main game loop
+    bool quit = false;
+    const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
 
+    while (!quit) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_QUIT) {
+                quit = true;
+            }
+        }
 
-	// Main game loop
-	bool quit = false;
-	Uint32 lastFrameTime = SDL_GetTicks();
+        player.handleInput(currentKeyStates);
 
-	while (!quit) {
-		SDL_Event event;
-		while (SDL_PollEvent(&event) != 0) {
-			if (event.type == SDL_QUIT) {
-				quit = true;
-			}
-		}
+        enemy.updatePosition(player.getBody()->GetPosition().x * PPM, player.getBody()->GetPosition().y * PPM);
 
-		// Get the state of all keys
-		const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+        int offsetX = SCREEN_WIDTH / 2 - static_cast<int>(player.getBody()->GetPosition().x * PPM);
+        int offsetY = SCREEN_HEIGHT / 2 - static_cast<int>(player.getBody()->GetPosition().y * PPM);
 
-		// Update player position based on continuously pressed keys
-		player.updatePosition(currentKeyStates);
+        SDL_RenderClear(renderer);
 
-		// Update enemy position based on player's position
-		enemy.updatePosition(player.getPosition());
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
-		// Check right-click to shoot
-		player.shootProjectile(renderer);
+        SDL_Rect backgroundRect = { offsetX, offsetY, SCREEN_WIDTH, SCREEN_HEIGHT };
+        SDL_RenderCopy(renderer, backgroundTexture, nullptr, &backgroundRect);
 
-		// Calculate the offset to center the screen on the player
-		int offsetX = SCREEN_WIDTH / 2 - player.getPosition().x;
-		int offsetY = SCREEN_HEIGHT / 2 - player.getPosition().y;
+        player.render(renderer, offsetX, offsetY);
+        enemy.render(renderer, offsetX, offsetY);
 
-		// Clear the renderer
-		SDL_RenderClear(renderer);
+        std::vector<Projectile> aliveProjectiles;
 
-		// Set blending mode
-		SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        for (auto& projectile : player.getProjectiles()) {
+            projectile.render(renderer, offsetX, offsetY);
+            projectile.update();
 
-		// Render background texture with camera offset
-		SDL_Rect backgroundRect = { offsetX, offsetY, SCREEN_WIDTH, SCREEN_HEIGHT };
-		SDL_RenderCopy(renderer, backgroundTexture, NULL, &backgroundRect);
+            if (projectile.isAlive()) {
+                aliveProjectiles.push_back(projectile);
+            }
+        }
 
-		// Render game objects with the calculated offset
-		player.render(renderer, offsetX, offsetY);
-		enemy.render(renderer, offsetX, offsetY);
-	
-	
-		// Update and render all projectiles
-		std::vector<Projectile> aliveProjectiles;
+        player.setProjectiles(aliveProjectiles);
 
-		for (auto& projectile : player.getProjectiles()) {
-			projectile.update();
-			projectile.render(renderer, offsetX, offsetY);
+        SDL_RenderPresent(renderer);
 
-			// Only add alive projectiles to the new vector
-			if (projectile.isAlive()) {
-				aliveProjectiles.push_back(projectile);
-			}
-		}
+        if (player.getHealth() <= 0) {
+            quit = true;
+        }
 
-		// Assign the alive projectiles back to the player's projectiles
-		printf("Alive Projectiles: %zu\n", aliveProjectiles.size()); //Debug Print
-		player.setProjectiles(aliveProjectiles);
+        world.Step(1.0f / 60.0f, 6, 2);
+    }
 
-
-		// Present the renderer
-		SDL_RenderPresent(renderer);
-
-		// Check player's health
-		if (player.getHealth() <= 0) {
-			quit = true;  // Exit the game if the player's health reaches 0
-		}
-
-		// Cap the frame rate to approximately 60 frames per second
-		Uint32 currentTime = SDL_GetTicks();
-		Uint32 deltaTime = currentTime - lastFrameTime;
-
-		if (deltaTime < 16) {
-			SDL_Delay(16 - deltaTime);  // Cap the frame rate
-		}
-
-		lastFrameTime = currentTime;
-	}
-	
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-	return 0;
+    SDL_DestroyTexture(backgroundTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    return 0;
 }
 

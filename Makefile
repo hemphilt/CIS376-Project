@@ -1,8 +1,8 @@
 # Compiler
 CXX := g++
 # Compiler flags
-CXXFLAGS := -std=c++11 -Wall -I./include
-LDFLAGS := -L./lib -lm -lSDL2 -lSDL2_image -msse4.1
+CXXFLAGS := -std=c++11 -Wall -I./include -g
+LDFLAGS := -L./lib -lm -lSDL2 -lSDL2_image -llua -msse4.1 -lbox2d
 
 # Directories
 SRC_DIR := ./src
@@ -42,3 +42,4 @@ directories: $(BUILD_DIR) $(LEAGUE_DIR)
 
 $(BUILD_DIR) $(LEAGUE_DIR):
 	mkdir -p $@
+

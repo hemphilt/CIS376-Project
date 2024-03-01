@@ -1,52 +1,39 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <string>
 #include <vector>
-#include "projectile.h"
-#include <algorithm>
+#include <string>
+#include <SDL2/SDL.h>
+#include <box2d/box2d.h>
+
+class Projectile;
 
 class Player {
-
 public:
-	Player(SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
-    	~Player();
-    	void render(SDL_Renderer* renderer, int offsetX, int offsetY);
-    	void handleInput(SDL_Event& event);
-    	const SDL_Rect getPosition() const; 
-    	void updatePosition(const Uint8* currentKeyStates);
-    	
-    	void shootProjectile(SDL_Renderer* renderer);
-    	bool canShoot() const;
-    	std::vector<Projectile>& getProjectiles();
-    	void setProjectiles(const std::vector<Projectile>& newProjectiles);
-    	void addProjectile(Projectile& projectile);
+    Player(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
+    ~Player();
 
-    	// Getters
-    	int getHealth() const;
-    	int getMana() const;
-    	std::string getPlayerClass() const;
-
-    	// Setters
-    	void setHealth(int health);
-    	void setMana(int mana);
-    	void setPlayerClass(const std::string& playerClass);
+    void setPosition(float x, float y);
+    b2Body* getBody() const;
+    void handleInput(const Uint8* currentKeyStates);
+    void render(SDL_Renderer* renderer, int offsetX, int offsetY);
+    std::vector<Projectile>& getProjectiles();
+    void setProjectiles(const std::vector<Projectile>& newProjectiles);
+    int getHealth() const;
 
 private:
-	SDL_Texture* texture;
-	SDL_Rect position;
-	SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
-    	
-	int health;
-	int mana;
-	std::string playerClass;
-	
-	std::vector<Projectile> projectiles;
-	Uint32 lastShotTime;
-    	Uint32 shotCooldown;
-	
+    SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
+    void shootProjectile(SDL_Renderer* renderer);
+
+    b2World* world;
+    b2Body* body;
+    SDL_Texture* texture;
+    std::vector<Projectile> projectiles;
+    int lastShotTime;
+    int shotCooldown;
+    int health;
+    int mana;
+    std::string playerClass;
 };
 
 #endif // PLAYER_H

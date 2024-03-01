@@ -3,6 +3,49 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <box2d/box2d.h>
+#include <string>
+
+class Projectile {
+public:
+    Projectile(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, float x, float y, float width, float height);
+    ~Projectile();
+    void setVelocityX(float vx);
+    void setVelocityY(float vy);
+    void update();
+    void render(SDL_Renderer* renderer, int offsetX, int offsetY) const;
+    SDL_Rect getPosition() const;
+    bool isAlive() const;
+
+private:
+    SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
+    b2World* world;
+    b2Body* body;
+    SDL_Texture* texture;
+    bool alive;
+    b2Vec2 velocity;
+    SDL_Rect position;
+};
+
+#endif // PROJECTILE_H
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+#ifndef PROJECTILE_H
+#define PROJECTILE_H
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <string>
 #include <vector>
 
@@ -39,3 +82,4 @@ private:
 };
 
 #endif // PROJECTILE_H
+*/
