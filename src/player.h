@@ -6,6 +6,11 @@
 #include <SDL2/SDL.h>
 #include <box2d/box2d.h>
 
+#define SCREEN_WIDTH 1000
+#define SCREEN_HEIGHT 800
+#define PLAYER_SPEED 5.0f
+#define PPM 32.0f
+
 class Projectile;
 
 class Player {

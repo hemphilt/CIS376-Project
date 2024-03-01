@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <chrono>
 #include <box2d/box2d.h>
 #include "player.h"
 #include "enemy.h"
@@ -58,7 +59,7 @@ int main(int argc, char* args[]) {
     backgroundImage = nullptr;
 
     // Create a Box2D world
-    b2Vec2 gravity(0.0f, 9.8f);
+    b2Vec2 gravity(0.0f, 0.0f);
     b2World world(gravity);
 
     // Create a Player
@@ -71,7 +72,15 @@ int main(int argc, char* args[]) {
     bool quit = false;
     const Uint8* currentKeyStates = SDL_GetKeyboardState(nullptr);
 
+    auto lastTime = std::chrono::high_resolution_clock::now();
+    float deltaTime = 0.0f;
+
     while (!quit) {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> duration = currentTime - lastTime;
+        deltaTime = duration.count();
+        lastTime = currentTime;
+        
         SDL_Event event;
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_QUIT) {
@@ -81,7 +90,8 @@ int main(int argc, char* args[]) {
 
         player.handleInput(currentKeyStates);
 
-        enemy.updatePosition(player.getBody()->GetPosition().x * PPM, player.getBody()->GetPosition().y * PPM);
+        enemy.update(player.getBody()->GetPosition().x * PPM, player.getBody()->GetPosition().y * PPM, deltaTime);
+
 
         int offsetX = SCREEN_WIDTH / 2 - static_cast<int>(player.getBody()->GetPosition().x * PPM);
         int offsetY = SCREEN_HEIGHT / 2 - static_cast<int>(player.getBody()->GetPosition().y * PPM);

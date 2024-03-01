@@ -1,11 +1,6 @@
 #include "player.h"
 #include "projectile.h"
 
-#define SCREEN_WIDTH 1000
-#define SCREEN_HEIGHT 800
-#define PLAYER_SPEED 2.0f
-#define PPM 32.0f
-
 Player::Player(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height)
     : world(world),
       body(nullptr),
@@ -20,10 +15,11 @@ Player::Player(b2World* world, SDL_Renderer* renderer, const std::string& imageP
     bodyDef.position.Set(x / PPM, y / PPM);
     bodyDef.fixedRotation = true;
 
+
     body = world->CreateBody(&bodyDef);
 
     b2PolygonShape shape;
-    shape.SetAsBox(width / 2 / PPM, height / 2 / PPM);  // Divide by PPM to set the size in Box2D units
+    shape.SetAsBox(width / 2 / PPM, height / 2 / PPM);
 
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &shape;
@@ -31,6 +27,7 @@ Player::Player(b2World* world, SDL_Renderer* renderer, const std::string& imageP
     fixtureDef.friction = 0.3f;
 
     body->CreateFixture(&fixtureDef);
+    body->SetLinearVelocity(b2Vec2(0, 0));
 
     health = 100;
     mana = 50;
@@ -54,26 +51,19 @@ void Player::handleInput(const Uint8* currentKeyStates) {
     b2Vec2 velocity(0, 0);
 
     if (currentKeyStates[SDL_SCANCODE_W]) {
-        velocity.y = -PLAYER_SPEED / PPM;  // Convert speed to Box2D units
+        velocity.y = -PLAYER_SPEED;
     }
     if (currentKeyStates[SDL_SCANCODE_S]) {
-        velocity.y = PLAYER_SPEED / PPM;  // Convert speed to Box2D units
+        velocity.y = PLAYER_SPEED;
     }
     if (currentKeyStates[SDL_SCANCODE_A]) {
-        velocity.x = -PLAYER_SPEED / PPM;  // Convert speed to Box2D units
+        velocity.x = -PLAYER_SPEED;
     }
     if (currentKeyStates[SDL_SCANCODE_D]) {
-        velocity.x = PLAYER_SPEED / PPM;  // Convert speed to Box2D units
+        velocity.x = PLAYER_SPEED;
     }
 
-    // Reset velocity if no keys are pressed
-    if (!currentKeyStates[SDL_SCANCODE_W] && !currentKeyStates[SDL_SCANCODE_S]) {
-        velocity.y = 0;
-    }
-    if (!currentKeyStates[SDL_SCANCODE_A] && !currentKeyStates[SDL_SCANCODE_D]) {
-        velocity.x = 0;
-    }
-
+    // Set the velocity directly
     body->SetLinearVelocity(velocity);
 
     // Check right-click to shoot
@@ -105,7 +95,7 @@ void Player::shootProjectile(SDL_Renderer* renderer) {
     SDL_GetMouseState(&mouseX, &mouseY);
 
     b2Vec2 playerPosition = body->GetPosition();
-    b2Vec2 mouseDirection(mouseX / PPM - playerPosition.x * PPM, mouseY / PPM - playerPosition.y * PPM);
+    b2Vec2 mouseDirection(mouseX / PPM - playerPosition.x, mouseY / PPM - playerPosition.y);
     mouseDirection.Normalize();
 
     Projectile newProjectile(world, renderer, "./assets/arrow.png", playerPosition.x * PPM, playerPosition.y * PPM, 10, 10);

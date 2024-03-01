@@ -1,10 +1,4 @@
 #include "projectile.h"
-#include <SDL2/SDL_image.h>
-
-#define SCREEN_WIDTH 1000
-#define SCREEN_HEIGHT 800
-#define PLAYER_SPEED 5.0f
-#define PPM 32.0f
 
 Projectile::Projectile(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, float x, float y, float width, float height)
     : world(world),

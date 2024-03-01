@@ -6,6 +6,11 @@
 #include <box2d/box2d.h>
 #include <string>
 
+#define SCREEN_WIDTH 1000
+#define SCREEN_HEIGHT 800
+#define PPM 32.0f
+
+
 class Projectile {
 public:
     Projectile(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, float x, float y, float width, float height);
