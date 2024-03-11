@@ -59,7 +59,7 @@ b2Body* Player::getBody() const {
     return body;
 }
 
-void Player::handleInput(const Uint8* currentKeyStates) {
+void Player::handleInput(SDL_Renderer* renderer, const Uint8* currentKeyStates) {
     b2Vec2 velocity(0, 0);
 
     if (currentKeyStates[SDL_SCANCODE_W]) {
@@ -80,7 +80,7 @@ void Player::handleInput(const Uint8* currentKeyStates) {
 
     // Check right-click to shoot
     if (SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
-        shootProjectile(nullptr); // Passing nullptr as renderer, adjust as needed
+        shootProjectile(renderer);
     }
 }
 
@@ -102,23 +102,50 @@ SDL_Texture* Player::loadTexture(SDL_Renderer* renderer, const std::string& path
     return texture;
 }
 
+
 void Player::shootProjectile(SDL_Renderer* renderer) {
+    // Check if enough time has passed since the last shot
+    Uint32 currentTime = SDL_GetTicks();
+    if (static_cast<Uint32>(currentTime) - static_cast<Uint32>(lastShotTime) < static_cast<Uint32>(shotCooldown)) {
+        return; // Shot on cooldown
+    }
+
+    // Calculate the initial position for the projectile (right middle side of the player)
+    b2Vec2 playerPosition = body->GetPosition();
+    float playerWidth = 16 / PPM; // Adjust with the actual player width
+    float playerHeight = 32 / PPM; // Adjust with the actual player height
+    float initialX = playerPosition.x + (playerWidth / 2.0f);
+    float initialY = playerPosition.y + (playerHeight / 2.0f);
+
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    b2Vec2 playerPosition = body->GetPosition();
-    b2Vec2 mouseDirection(mouseX / PPM - playerPosition.x, mouseY / PPM - playerPosition.y);
+    // Calculate the mouse direction relative to the player's position
+    b2Vec2 mouseDirection(mouseX / PPM - initialX, mouseY / PPM - initialY);
     mouseDirection.Normalize();
 
-    Projectile newProjectile(world, renderer, "./assets/arrow.png", playerPosition.x * PPM, playerPosition.y * PPM, 10, 10);
+    // Create and set up the new projectile
+    Projectile newProjectile(
+        world,
+        renderer,
+        "./assets/arrow.png",
+        initialX * PPM,
+        initialY * PPM,
+        10 / PPM,
+        10 / PPM
+    );
 
     const float projectileSpeed = 5.0f;
     newProjectile.setVelocityX(mouseDirection.x * projectileSpeed);
     newProjectile.setVelocityY(mouseDirection.y * projectileSpeed);
 
+    // Add the new projectile to the vector
     projectiles.push_back(newProjectile);
-    lastShotTime = SDL_GetTicks();
+
+    // Update the last shot time
+    lastShotTime = currentTime;
 }
+
 
 void Player::render(SDL_Renderer* renderer, int offsetX, int offsetY) {
     SDL_Rect playerRect = {
@@ -137,6 +164,7 @@ std::vector<Projectile>& Player::getProjectiles() {
     return projectiles;
 }
 
+
 void Player::setProjectiles(const std::vector<Projectile>& newProjectiles) {
     projectiles = newProjectiles;
 }
@@ -152,4 +180,3 @@ void Player::handleBeginContact(EntityUserData* otherUserData) {
         printf("Player Health: %d\n", health); //Debug Print
     }
 }
-

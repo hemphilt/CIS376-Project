@@ -14,8 +14,6 @@
 #define PLAYER_SPEED 5.0f
 #define PPM 32.0f
 
-std::map<b2Body*, EntityUserData*> playerUserDataMap;
-
 class Player {
 public:
     Player(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
@@ -23,7 +21,7 @@ public:
 
     void setPosition(float x, float y);
     b2Body* getBody() const;
-    void handleInput(const Uint8* currentKeyStates);
+    void handleInput(SDL_Renderer* renderer, const Uint8* currentKeyStates);
     void render(SDL_Renderer* renderer, int offsetX, int offsetY);
     std::vector<Projectile>& getProjectiles();
     void setProjectiles(const std::vector<Projectile>& newProjectiles);
@@ -44,7 +42,7 @@ private:
     int health;
     int mana;
     std::string playerClass;
+    SDL_Rect position;
 };
 
 #endif // PLAYER_H
-

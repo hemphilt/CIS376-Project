@@ -30,6 +30,9 @@ private:
     bool alive;
     b2Vec2 velocity;
     SDL_Rect position;
+    float width;
+    float height;
+    b2Vec2 initialPosition;
 };
 
 #endif // PROJECTILE_H

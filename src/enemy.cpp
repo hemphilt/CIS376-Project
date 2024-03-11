@@ -62,7 +62,7 @@ void Enemy::createBody(b2World* world, float x, float y) {
     b2BodyDef bodyDef;
     bodyDef.type = b2_dynamicBody;
     bodyDef.position.Set(x / PPM, y / PPM);
-    bodyDef.fixedRotation = true;  // Prevent player from rotating
+    bodyDef.fixedRotation = true;
 
     body = world->CreateBody(&bodyDef);
 

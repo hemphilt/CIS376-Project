@@ -63,10 +63,10 @@ int main(int argc, char* args[]) {
     b2World world(gravity);
 
     // Create a Player
-    Player player(&world, renderer, "./assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 25, 50);
+    Player player(&world, renderer, "./assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 32);
 
     // Create an Enemy on the other side of the screen
-    Enemy enemy(&world, renderer, "./assets/skeleton.png", SCREEN_WIDTH - 100, 100, 25, 50);
+    Enemy enemy(&world, renderer, "./assets/skeleton.png", SCREEN_WIDTH - 100, 100, 16, 32);
 
     // Main game loop
     bool quit = false;
@@ -88,7 +88,7 @@ int main(int argc, char* args[]) {
             }
         }
 
-        player.handleInput(currentKeyStates);
+        player.handleInput(renderer, currentKeyStates);
 
         enemy.update(player.getBody()->GetPosition().x * PPM, player.getBody()->GetPosition().y * PPM, deltaTime);
 

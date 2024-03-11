@@ -1,9 +1,19 @@
-#ifndef ENTITY_USER_DATA_H
-#define ENTITY_USER_DATA_H
+// entityuserdata.h
+#ifndef ENTITYUSERDATA_H
+#define ENTITYUSERDATA_H
 
-struct EntityUserData {
-    enum EntityType { PLAYER, ENEMY };
-    EntityType type;
+class EntityUserData {
+public:
+    enum Type {
+        PLAYER,
+        ENEMY
+        
+    };
+
+    Type type;
+
+    // Constructor
+    EntityUserData(Type entityType) : type(entityType) {}
 };
 
-#endif // ENTITY_USER_DATA_H
+#endif // ENTITYUSERDATA_H
