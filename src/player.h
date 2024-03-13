@@ -12,11 +12,11 @@
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
 #define PLAYER_SPEED 5.0f
-#define PPM 32.0f
+#define PPM 100.0f
 
 class Player {
 public:
-    Player(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
+    Player(PhysicsWorld* physics, b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height);
     ~Player();
 
     void setPosition(float x, float y);

@@ -6,10 +6,11 @@
 #include "player.h"
 #include "enemy.h"
 #include "projectile.h"
+#include "/home/hemphito/CIS376/CIS376-Project/include/physics.h"
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
-#define PPM 32.0f
+#define PPM 100.0f
 
 int main(int argc, char* args[]) {
     SDL_Window* window = nullptr;
@@ -61,9 +62,41 @@ int main(int argc, char* args[]) {
     // Create a Box2D world
     b2Vec2 gravity(0.0f, 0.0f);
     b2World world(gravity);
+    
+    PhysicsWorld physics(b2Vec2(0.0, -10.0f));
+    
+
+    
+    	b2BodyDef groundDef;
+	groundDef.position.Set(0, 0);
+	groundDef.type=b2_staticBody;
+	b2Body* ground = physics.addBody(&groundDef);
+	b2PolygonShape groundBox;
+	groundBox.SetAsBox(8.0f, 10.0f);
+	ground->CreateFixture(&groundBox, 1.0f);
+
+
+	b2BodyDef leftDef;
+	leftDef.position.Set(0, 3);
+	leftDef.type=b2_staticBody;
+	b2Body* left = physics.addBody(&leftDef);
+	b2PolygonShape leftBox;
+	leftBox.SetAsBox(10.0f, 8.0f);
+	left->CreateFixture(&leftBox, 1.0f);
+
+	b2BodyDef rightDef;
+	rightDef.position.Set(0, 10);
+	rightDef.type=b2_staticBody;
+	b2Body* right = physics.addBody(&rightDef);
+	b2PolygonShape rightBox;
+	rightBox.SetAsBox(10.0f, 8.0f);
+	right->CreateFixture(&rightBox, 1.0f);
+    
+    
+    
 
     // Create a Player
-    Player player(&world, renderer, "./assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 32);
+    Player player(&physics, &world, renderer, "./assets/warrior.png", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 16, 32);
 
     // Create an Enemy on the other side of the screen
     Enemy enemy(&world, renderer, "./assets/skeleton.png", SCREEN_WIDTH - 100, 100, 16, 32);

@@ -5,7 +5,7 @@
 std::map<b2Body*, EntityUserData*> playerUserDataMap;
 
 
-Player::Player(b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height)
+Player::Player(PhysicsWorld* physics, b2World* world, SDL_Renderer* renderer, const std::string& imagePath, int x, int y, int width, int height)
     : world(world),
       body(nullptr),
       projectiles(),
@@ -21,6 +21,7 @@ Player::Player(b2World* world, SDL_Renderer* renderer, const std::string& imageP
 
 
     body = world->CreateBody(&bodyDef);
+    body = physics.addBody(&bodyDef);
 
     b2PolygonShape shape;
     shape.SetAsBox(width / 2 / PPM, height / 2 / PPM);
@@ -151,8 +152,8 @@ void Player::render(SDL_Renderer* renderer, int offsetX, int offsetY) {
     SDL_Rect playerRect = {
         static_cast<int>((body->GetPosition().x * PPM) + offsetX),
         static_cast<int>((body->GetPosition().y * PPM) + offsetY),
-        static_cast<int>(25 / PPM * PPM),
-        static_cast<int>(50 / PPM * PPM)
+        static_cast<int>(16 / PPM * PPM),
+        static_cast<int>(32 / PPM * PPM)
     };
     SDL_RenderCopy(renderer, texture, nullptr, &playerRect);
 

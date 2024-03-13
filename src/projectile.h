@@ -8,7 +8,7 @@
 
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 800
-#define PPM 32.0f
+#define PPM 100.0f
 
 
 class Projectile {
